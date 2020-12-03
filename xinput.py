@@ -1,7 +1,5 @@
-import ctypes
 import ctypes.wintypes
-import time
-import os
+from configparser import ConfigParser
 
 
 class XInputGamepad(ctypes.Structure):
@@ -30,16 +28,17 @@ class XInputVibration(ctypes.Structure):
     ]
 
 
-if __name__ == '__main__':
+class XInput:
     api = ctypes.windll.xinput1_4
-    state = XInputState()
-    gamepad_number = 0
 
-    while True:
-        api.XInputGetState(
-            ctypes.wintypes.WORD(gamepad_number),
-            ctypes.pointer(state)
-        )
-        print(state.dwPacketNumber)
-        time.sleep(0.5)
-        os.system('cls')
+    def __init__(self, config_file, gamepad_number=0):
+        self.gamepad_number = gamepad_number
+        self.state = XInputState()
+        self.gamepad = self.state.Gamepad
+        config = ConfigParser()
+        config.read(config_file)
+        self.config = config['gamepad']
+
+
+if __name__ == '__main__':
+    pass
