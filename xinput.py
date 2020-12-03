@@ -29,9 +29,47 @@ class XInputVibration(ctypes.Structure):
 
 
 class XInput:
-    api = ctypes.windll.xinput1_4
+    API = ctypes.windll.xinput1_4
+    TRIGGERS = {
+        'LEFT_TRIGGER': 'bLeftTrigger',
+        'RIGHT_TRIGGER': 'bRightTrigger',
+    }
+    THUMBS = {
+        'LEFT_THUMB_X': 'sThumbLX',
+        'LEFT_THUMB_-X': 'sThumbLX',
+        'LEFT_THUMB_Y': 'sThumbLY',
+        'LEFT_THUMB_-Y': 'sThumbLY',
+        'RIGHT_THUMB_X': 'sThumbRX',
+        'RIGHT_THUMB_-X': 'sThumbRX',
+        'RIGHT_THUMB_Y': 'sThumbRY',
+        'RIGHT_THUMB_-Y': 'sThumbRY',
+    }
+    AXES = {
+        **TRIGGERS,
+        **THUMBS
+    }
+    BUTTONS = {
+        'DPAD_UP': 0x0001,
+        'DPAD_DOWN': 0x0002,
+        'DPAD_LEFT': 0x0004,
+        'DPAD_RIGHT': 0x0008,
+        'START': 0x0010,
+        'BACK': 0x0020,
+        'LEFT_THUMB': 0x0040,
+        'RIGHT_THUMB': 0x0080,
+        'LEFT_SHOULDER': 0x0100,
+        'RIGHT_SHOULDER': 0x0200,
+        'A': 0x1000,
+        'B': 0x2000,
+        'X': 0x4000,
+        'Y': 0x8000
+    }
+    TRIGGER_MAGNITUDE = 256
+    THUMB_MAGNITUDE = 32768
+    ERROR_SUCCESS = 0
 
-    def __init__(self, config_file, gamepad_number=0):
+
+def __init__(self, config_file, gamepad_number=0):
         self.gamepad_number = gamepad_number
         self.state = XInputState()
         self.gamepad = self.state.Gamepad
