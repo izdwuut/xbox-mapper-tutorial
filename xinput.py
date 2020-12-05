@@ -68,14 +68,22 @@ class XInput:
     THUMB_MAGNITUDE = 32768
     ERROR_SUCCESS = 0
 
-
-def __init__(self, config_file, gamepad_number=0):
+    def __init__(self, config_file, gamepad_number=0):
         self.gamepad_number = gamepad_number
         self.state = XInputState()
         self.gamepad = self.state.Gamepad
         config = ConfigParser()
         config.read(config_file)
         self.config = config['gamepad']
+
+    def get_state(self):
+        previous_state = self.state.dwPacketNumber
+        error_code = self.API.XInputGetState(
+            ctypes.wintypes.WORD(self.gamepad_number),
+            ctypes.pointer(self.state))
+        if error_code != self.ERROR_SUCCESS:
+            raise Exception('Gamepad number {} is not connected'.format(self.gamepad_number))
+        return previous_state != self.state.dwPacketNumber
 
 
 if __name__ == '__main__':
