@@ -101,6 +101,22 @@ class XInput:
     def get_thumb_value(self, thumb):
         return self.get_axis_value(thumb)
 
+    def get_magnitude(self, axis_type):
+        return getattr(self, axis_type + '_MAGNITUDE')
+
+    def get_sensitivity(self, axis_type):
+        return self.config.getfloat(axis_type + '_SENSITIVITY')
+
+    def get_normalized_value(self, axis: str):
+        if axis not in self.AXES.keys():
+            raise Exception('Invalid axis. Got: "{}"'.format(axis))
+        axis_type = axis.split('_')[1]
+        raw_value = getattr(
+            self,
+            'get_{}_value'.format(axis_type.lower()))(axis)
+        magnitude = self.get_magnitude(axis_type)
+        sensitivity = self.get_sensitivity(axis_type)
+        return (raw_value / magnitude) * sensitivity
 
 if __name__ == '__main__':
     pass
