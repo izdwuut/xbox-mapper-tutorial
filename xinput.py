@@ -90,6 +90,17 @@ class XInput:
             raise Exception('Invalid button. Got: "{}"'.format(button))
         return bool(self.BUTTONS[button] & self.gamepad.wButtons)
 
+    def get_axis_value(self, axis):
+        if axis not in self.AXES:
+            raise Exception('Invalid axis, Got: {}'.format(axis))
+        return getattr(self.gamepad, self.AXES[axis])
+
+    def get_trigger_value(self, trigger):
+        return self.get_axis_value(trigger) & 0xFF
+
+    def get_thumb_value(self, thumb):
+        return self.get_axis_value(thumb)
+
 
 if __name__ == '__main__':
     pass
