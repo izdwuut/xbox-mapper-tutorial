@@ -119,16 +119,16 @@ class XInput:
         return (raw_value / magnitude) * sensitivity
 
     def get_dead_zone(self, axis_type):
-        return getattr(self, axis_type + '_DEAD_ZONE')
+        return self.config.getfloat(axis_type + '_DEAD_ZONE')
 
     def get_normalized_dead_zone(self, axis_type):
-        return self.get_dead_zone(axis_type) * self.get_magnitude(axis_type)
+        return self.get_dead_zone(axis_type)
 
     def is_axis_change(self, axis):
         if axis not in self.AXES.keys():
             raise Exception('Invalid axis. Got: "{}"'.format(axis))
         axis_value = self.get_normalized_value(axis)
-        dead_zone = self.get_normalized_dead_zone(axis.split('_')[1])
+        dead_zone = self.get_normalized_dead_zone(axis.split('_')[1]) / self.get_magnitude(axis.split('_')[1])
         return axis_value > dead_zone
 
     def is_thumb_move(self, thumb):
