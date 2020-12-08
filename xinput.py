@@ -85,6 +85,11 @@ class XInput:
             raise Exception('Gamepad number {} is not connected'.format(self.gamepad_number))
         return previous_state != self.state.dwPacketNumber
 
+    def is_button_press(self, button):
+        if button not in self.BUTTONS:
+            raise Exception('Invalid button. Got: "{}"'.format(button))
+        return bool(self.BUTTONS[button] & self.gamepad.wButtons)
+
 
 if __name__ == '__main__':
     pass
