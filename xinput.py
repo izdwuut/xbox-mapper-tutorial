@@ -1,5 +1,8 @@
 import ctypes.wintypes
 from configparser import ConfigParser
+import math
+import multiprocessing
+import time
 
 
 class XInputGamepad(ctypes.Structure):
@@ -66,7 +69,9 @@ class XInput:
     }
     TRIGGER_MAGNITUDE = 256
     THUMB_MAGNITUDE = 32768
+    MOTOR_MAGNITUDE = 65535
     ERROR_SUCCESS = 0
+    vibration_process = None
 
     def __init__(self, config_file, gamepad_number=0):
         self.gamepad_number = gamepad_number
@@ -136,6 +141,48 @@ class XInput:
 
     def is_trigger_press(self, trigger):
         return self.is_axis_change(trigger)
+
+    def set_vibration(self, left_motor, right_motor):
+        if not (0 <= left_motor <= 1 and 0 <= right_motor <= 1):
+            raise Exception('Motor speeds must be between 0 - 1.')
+        vibration = XInputVibration(
+            ctypes.wintypes.WORD(math.floor(left_motor * self.MOTOR_MAGNITUDE)),
+            ctypes.wintypes.WORD(math.floor(right_motor * self.MOTOR_MAGNITUDE))
+        )
+        self.API.XInputSetState(
+            ctypes.wintypes.DWORD(self.gamepad_number),
+            ctypes.pointer(vibration)
+        )
+
+    def disable_vibration(self, duration=0):
+        time.sleep(duration)
+        vibration = XInputVibration(
+            ctypes.wintypes.WORD(0),
+            ctypes.wintypes.WORD(0)
+        )
+        self.API.XInputSetState(
+            ctypes.wintypes.WORD(self.gamepad_number),
+            ctypes.pointer(vibration)
+        )
+        try:
+            self.vibration_process.terminate()
+        except AttributeError:
+            pass
+
+    def set_debounce_vibration(self, left_motor, right_motor, duration):
+        self.set_vibration(left_motor, right_motor)
+        try:
+            self.vibration_process.terminate()
+        except AttributeError:
+            pass
+        self.vibration_process = multiprocessing.Process(
+            target=self.disable_vibration,
+            args=(duration,)
+        )
+        self.vibration_process.start()
+
+    def __del__(self):
+        self.disable_vibration()
 
 
 if __name__ == '__main__':
