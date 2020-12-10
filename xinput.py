@@ -3,6 +3,7 @@ from configparser import ConfigParser
 import math
 import multiprocessing
 import time
+import os
 
 
 class XInputGamepad(ctypes.Structure):
