@@ -81,6 +81,9 @@ class XInput:
         config.read(config_file)
         self.config = config['gamepad']
 
+    def __del__(self):
+        self.disable_vibration()
+
     def get_state(self):
         previous_state = self.state.dwPacketNumber
         error_code = self.API.XInputGetState(
@@ -181,9 +184,29 @@ class XInput:
         )
         self.vibration_process.start()
 
-    def __del__(self):
-        self.disable_vibration()
-
 
 if __name__ == '__main__':
-    pass
+    x = XInput('default.ini')
+    while True:
+        output = {}
+        if not x.get_state() and output:
+            print('\n'.join(['{} = {}'.format(key, value) for key, value in output.items()]))
+            time.sleep(0.2)
+            os.system('cls')
+            continue
+        for thumb in x.THUMBS.keys():
+            if x.is_thumb_move(thumb):
+                output[thumb] = x.get_thumb_value(thumb)
+            else:
+                output[thumb] = 0
+        for trigger in x.TRIGGERS.keys():
+            if x.is_trigger_press(trigger):
+                output[trigger] = x.get_trigger_value(trigger)
+            else:
+                output[trigger] = 0
+        for button in x.BUTTONS.keys():
+            output[button] = x.is_button_press(button)
+            x.set_debounce_vibration(0.3, 0.3, 0.1)
+        print('\n'.join(['{} = {}'.format(key, value) for key, value in output.items()]))
+        time.sleep(0.2)
+        os.system('cls')
